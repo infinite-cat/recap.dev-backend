@@ -197,8 +197,8 @@ export class CloudWatchLogsService {
       const response = await cloudwatch.filterLogEvents({
         logGroupName: `/aws/lambda/${lambdaName}`,
         logStreamNames,
-        startTime: startTime - 100,
-        endTime: endTime + 100,
+        startTime: startTime - 2000,
+        endTime: endTime + 2000,
       }).promise()
 
       logger.trace(`Getting logs for ${lambdaName}, ${JSON.stringify(logStreamNames)}, ${startTime}, ${endTime} took ${Date.now() - startRequestTime}ms`)
