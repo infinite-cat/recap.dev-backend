@@ -1,0 +1,37 @@
+service:
+  name: recap.dev-server
+
+plugins:
+  - serverless-webpack
+  - serverless-express
+  - serverless-api-compression
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  versionFunctions: false
+  memorySize: 512
+  region: us-east-1
+  tracing: false
+  iamRoleStatements:
+    ${file(roleStatements.yml)}
+  environment:
+    stage: ${self:custom.stage}
+
+custom:
+  name: ${self:custom.stage}-${self:service}
+  region: ${opt:region, self:provider.region}
+  stage: ${opt:stage, self:provider.stage}
+  contentCompression: 1024
+  webpack:
+    webpackConfig: 'sls-webpack.config.js'   # Name of webpack configuration file
+
+functions:
+  app:
+    handler: src/serverless-handler.api
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY

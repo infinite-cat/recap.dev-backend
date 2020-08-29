@@ -1,0 +1,60 @@
+name: dev-deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  dev-deploy:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'password'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+      - uses: chrislennon/action-aws-cli@v1.1
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          config: ${{ secrets.CONFIG }}
+      - name: install dependencies
+        run: yarn
+      - name: lint
+        run: yarn lint
+      - name: tsc
+        run: yarn tsc
+      - name: build
+        run: yarn build:prod
+      - name: start server
+        run: node dist/index.js &
+        env:
+          postgresHost: localhost
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: run tests
+        run: yarn test
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: upload
+        run: scp -r dist/index.js ec2-user@recap.dev-develop:recap/index.js
+      - name: restart
+        run: ssh -t ec2-user@recap.dev-develop pm2 reload index --update-env
