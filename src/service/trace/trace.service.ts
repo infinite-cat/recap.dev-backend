@@ -43,12 +43,12 @@ export abstract class AbstractTraceService {
       }))
       .value()
 
-    const start = chain(functionCallEvents)
+    const start = rawTrace.start || chain(functionCallEvents)
       .map('start')
       .min()
       .value()
 
-    const end = chain(functionCallEvents)
+    const end = rawTrace.end || chain(functionCallEvents)
       .map('end')
       .max()
       .value()

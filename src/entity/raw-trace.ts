@@ -26,6 +26,8 @@ export interface RawTrace {
   status: 'ERROR' | 'OK',
   request: any
   response: any
+  start?: string
+  end?: string
   error?: string
   logs?: string
   functionCallEvents: FunctionCallEvent[]
