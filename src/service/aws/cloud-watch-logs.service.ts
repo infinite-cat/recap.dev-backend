@@ -4,11 +4,7 @@ import NodeCache from 'node-cache'
 import PromisePool from '@supercharge/promise-pool'
 import { logger } from '../../utils/logger'
 import { errorToString } from '../trace/error-utils'
-
-export interface CloudWatchLogEntry {
-  timestamp: number
-  message: string
-}
+import { LogEntry } from '../../entity/log-entry'
 
 const sts = new STS()
 
@@ -79,7 +75,7 @@ export class CloudWatchLogsService {
   }
 
 
-  public async getLambdaLogsBatch(requests: GetCloudWatchLogsRequest[]): Promise<Map<string, CloudWatchLogEntry[]>> {
+  public async getLambdaLogsBatch(requests: GetCloudWatchLogsRequest[]): Promise<Map<string, LogEntry[]>> {
     const groupedRequests = chain(requests)
       .groupBy((request) => `${request.accountId}-${request.region}-${request.lambdaName}`)
       .values()
@@ -137,7 +133,7 @@ export class CloudWatchLogsService {
       logger.error('Error while getting logs for request', error.item, error)
     })
 
-    const responsesMap = new Map<string, CloudWatchLogEntry[]>()
+    const responsesMap = new Map<string, LogEntry[]>()
 
     for (const request of requests) {
       const response = find(responses.results, {
@@ -185,7 +181,7 @@ export class CloudWatchLogsService {
     return responsesMap
   }
 
-  public async getLambdaLogs(lambdaName: string, logStreamNames: string[], startTime: number, endTime: number, region: string, accountId?: string): Promise<CloudWatchLogEntry[]> {
+  public async getLambdaLogs(lambdaName: string, logStreamNames: string[], startTime: number, endTime: number, region: string, accountId?: string): Promise<LogEntry[]> {
     const cloudwatch = await this.getCloudwatchClient(region, accountId)
 
     const events = []

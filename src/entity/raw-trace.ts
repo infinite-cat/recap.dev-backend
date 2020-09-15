@@ -1,3 +1,5 @@
+import { LogEntry } from './log-entry'
+
 interface FunctionCallEvent {
   start: string
   end: string
@@ -29,7 +31,7 @@ export interface RawTrace {
   start?: string
   end?: string
   error?: string
-  logs?: string
+  logs?: LogEntry
   functionCallEvents: FunctionCallEvent[]
   resourceAccessEvents: ResourceAccessEvent[]
   extraData?: any

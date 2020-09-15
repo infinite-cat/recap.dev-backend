@@ -60,7 +60,7 @@ export abstract class AbstractTraceService {
       request: JSON.stringify(rawTrace.request),
       response: JSON.stringify(rawTrace.response),
       error: rawTrace.error,
-      logs: rawTrace.logs,
+      logs: JSON.stringify(rawTrace.logs),
       start,
       end,
       duration: Number(end) - Number(start),
