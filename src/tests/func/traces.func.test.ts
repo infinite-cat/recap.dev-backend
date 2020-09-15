@@ -86,7 +86,10 @@ describe('trace queries tests', () => {
     const searchTrace = trace({
       id: 'test-logs-search-trace-id',
       unitName: 'test-logs-unit',
-      logs: 'log: error code 53463 occurred',
+      logs: [{
+        message: 'log: error code 53463 occurred',
+        timestamp: 1600143754000,
+      }],
       functionCallEvents: [{
         fileName: '',
         functionName: 'handler',
@@ -143,7 +146,7 @@ describe('trace queries tests', () => {
       end: (startDateTime.toMillis() + 20_000).toString(),
       duration: 10000,
       status: 'OK',
-      logs: 'log: error code 53463 occurred',
+      logs: '[{"message":"log: error code 53463 occurred","timestamp":1600143754000}]',
       request: '{"id":"test-dynamodb-get"}',
       response: '{"id":"test-dynamodb-get","title":"Testing the Tracing"}',
       error: null,
