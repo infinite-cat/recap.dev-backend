@@ -5,6 +5,8 @@ import { enrichTraces, updateEnrichersSettings } from '../service/trace/trace-en
 
 let isRunning = false
 
+const traceBatchSize = 100
+
 export const enrichNewTraces = new CronJob('0 * * * * *', async () => {
   if (isRunning) {
     console.log('Traces enrichment job is already running, skipping')
@@ -16,11 +18,15 @@ export const enrichNewTraces = new CronJob('0 * * * * *', async () => {
   try {
     await updateEnrichersSettings()
     console.log('Enriching new traces')
-    const tracesToEnrich = await traceService.getNotEnrichedTraces()
-    console.log(`There are ${tracesToEnrich.length} traces to enrich`)
-    const enrichedTraces = await enrichTraces(tracesToEnrich)
 
-    await traceService.saveTraces(enrichedTraces)
+    let tracesToEnrich
+    do {
+      tracesToEnrich = await traceService.getNotEnrichedTraces(traceBatchSize)
+      console.log(`Enriching ${tracesToEnrich.length} traces`)
+      const enrichedTraces = await enrichTraces(tracesToEnrich)
+
+      await traceService.saveTraces(enrichedTraces)
+    } while (tracesToEnrich.length === traceBatchSize)
     console.log('Enriched all traces')
   } finally {
     isRunning = false

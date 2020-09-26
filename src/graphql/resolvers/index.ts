@@ -12,7 +12,7 @@ export default {
         args.limit,
         args.unitName,
         args.unitErrorId ? Number(args.unitErrorId) : undefined,
-        args.onlyErrors,
+        args.status,
       )
     ),
     getTrace: (obj: any, args: any) => traceService.getTrace(args.id),

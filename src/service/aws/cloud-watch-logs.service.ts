@@ -187,6 +187,8 @@ export class CloudWatchLogsService {
     const events = []
     let nextToken: string | undefined
 
+    let i = 0
+
     do {
       const startRequestTime = Date.now()
 
@@ -203,7 +205,9 @@ export class CloudWatchLogsService {
         events.push(...response.events)
       }
       nextToken = response.nextToken
-    } while (nextToken)
+
+      i += 1
+    } while (nextToken && i < 50)
 
 
     return chain(events)

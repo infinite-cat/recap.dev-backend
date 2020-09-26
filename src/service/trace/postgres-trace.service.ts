@@ -44,13 +44,13 @@ export class PostgresTraceService extends AbstractTraceService {
     resourceAccessEvents: JSON.parse(storedTrace.resourceAccessEvents),
   })
 
-  getTraces = async (search: string = '', offset: number = 0, limit: number = 20, unitName?: string, unitErrorId?: number, onlyErrors?: boolean) => {
+  getTraces = async (search: string = '', offset: number = 0, limit: number = 20, unitName?: string, unitErrorId?: number, status?: string) => {
     const connection = getConnection()
 
     const dynamicCriteria: any = {}
 
-    if (onlyErrors) {
-      dynamicCriteria.status = 'ERROR'
+    if (status) {
+      dynamicCriteria.status = status
     }
 
     if (unitName) {
@@ -148,17 +148,19 @@ export class PostgresTraceService extends AbstractTraceService {
       .find({ unitError: IsNull(), error: Not(IsNull()), start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()) })
   }
 
-  public async getNotEnrichedTraces(cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
+  public async getNotEnrichedTraces(limit = 100, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
     const connection = getConnection()
 
     return connection
       .getRepository(StoredTrace)
       .find({
+        select: ['id', 'externalId', 'start', 'end', 'extraData', 'logs', 'enriched', 'status', 'error'], // TODO: only select what's needed
         where: {
           enriched: false,
           start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()),
         },
         relations: ['unit'],
+        take: limit,
       })
   }
 
