@@ -28,10 +28,13 @@ export class UnitService {
       queryBuilder.andWhere('units.name', 'like', `%${searchTerm}%`)
     }
 
+    const orderDirectionStatement = knex.raw(`${orderDirection} nulls ${orderDirection === 'desc' ? 'last' : 'first'}`)
+
     queryBuilder.groupBy('name')
       .orderBy([{
         column: orderBy,
-        order: orderDirection,
+        // @ts-ignore
+        order: orderDirectionStatement,
       }, {
         column: 'name',
         order: 'DESC',

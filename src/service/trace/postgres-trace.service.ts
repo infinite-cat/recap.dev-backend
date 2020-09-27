@@ -110,11 +110,11 @@ export class PostgresTraceService extends AbstractTraceService {
 
     const dataPoints = await connection.query(`
           select
-             count(*) as invocations,
-             sum(CASE WHEN status = 'ERROR' THEN 1 ELSE 0 END) AS errors,
-             EXTRACT(EPOCH FROM date_trunc('hour', TO_TIMESTAMP("end" / 1000))) * 1000 as "dateTime"
-      from traces
-      where "start" >= $1
+             sum(invocations) as invocations,
+             sum(errors) AS errors,
+             EXTRACT(EPOCH FROM date_trunc('hour', TO_TIMESTAMP("datetime" / 1000))) * 1000 as "dateTime"
+      from unit_stats
+      where "datetime" >= $1
       group by "dateTime"
       order by "dateTime" desc
       `, [since])
@@ -148,7 +148,7 @@ export class PostgresTraceService extends AbstractTraceService {
       .find({ unitError: IsNull(), error: Not(IsNull()), start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()) })
   }
 
-  public async getNotEnrichedTraces(limit = 100, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
+  public async getNotEnrichedTraces(limit = 100, offset = 0, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
     const connection = getConnection()
 
     return connection
@@ -161,6 +161,7 @@ export class PostgresTraceService extends AbstractTraceService {
         },
         relations: ['unit'],
         take: limit,
+        skip: offset,
       })
   }
 

@@ -9,11 +9,11 @@ export class InsightService {
 
     const highErrorRateUnits = await connection.query(`
         select unit_name as "unitName",
-        cast(sum(errors) as double precision) / sum(invocations) as "errorRate"
+        case when sum(invocations) = 0 THEN 0 ELSE cast(sum(errors) as double precision) / sum(invocations) end as "errorRate"
         from unit_stats
         where datetime >= $1
         group by unit_name
-        having cast(sum(errors) as double precision) / sum(invocations) > 0.01
+        having case when sum(invocations) = 0 THEN 0 ELSE cast(sum(errors) as double precision) / sum(invocations) end > 0.01
     `, [since])
 
     return map(highErrorRateUnits, ({ unitName, errorRate }: any) => ({

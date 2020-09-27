@@ -79,7 +79,7 @@ describe('aws trace test', () => {
 
     await updateEnrichersSettings()
     console.log('Enriching new traces')
-    const tracesToEnrich = await traceService.getNotEnrichedTraces(100, DateTime.fromMillis(1592158624599))
+    const tracesToEnrich = await traceService.getNotEnrichedTraces(100, 0, DateTime.fromMillis(1592158624599))
     console.log(`There are ${tracesToEnrich.length} traces to enrich`)
     const enrichedTraces = await enrichTraces(tracesToEnrich)
 
@@ -152,7 +152,7 @@ describe('aws trace test', () => {
 
     await updateEnrichersSettings()
     console.log('Enriching new traces')
-    const tracesToEnrich = await traceService.getNotEnrichedTraces(100, DateTime.fromMillis(1592158624599))
+    const tracesToEnrich = await traceService.getNotEnrichedTraces(100, 0, DateTime.fromMillis(1592158624599))
     console.log(`There are ${tracesToEnrich.length} traces to enrich`)
     const enrichedTraces = await enrichTraces(tracesToEnrich)
 

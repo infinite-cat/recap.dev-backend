@@ -20,12 +20,15 @@ export const enrichNewTraces = new CronJob('0 * * * * *', async () => {
     console.log('Enriching new traces')
 
     let tracesToEnrich
+    let offset = 0
     do {
-      tracesToEnrich = await traceService.getNotEnrichedTraces(traceBatchSize)
+      tracesToEnrich = await traceService.getNotEnrichedTraces(traceBatchSize, offset)
       console.log(`Enriching ${tracesToEnrich.length} traces`)
       const enrichedTraces = await enrichTraces(tracesToEnrich)
 
       await traceService.saveTraces(enrichedTraces)
+
+      offset += tracesToEnrich.length
     } while (tracesToEnrich.length === traceBatchSize)
     console.log('Enriched all traces')
   } finally {
