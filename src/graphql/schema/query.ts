@@ -5,7 +5,7 @@ export const Query = gql`
     getErrors(graphSince: String!, offset: Int): GetUnitErrorsResponse!
     getErrorStats(id: String!, since: String!): [UnitErrorDetailsGraphStats!]!
     getError(id: String!): UnitError
-    getTraces(search: String, offset: Int, unitName: String, unitErrorId: String, limit: Int, status: String): GetTracesResponse!
+    getTraces(search: String, offset: Int, unitName: String, unitErrorId: String, limit: Int, statuses: [String!]): GetTracesResponse!
     getTrace(id: String!): Trace
     getUnits(since: String!, search: String, offset: Int, orderBy: String, orderDirection: String): GetUnitsResponse!
     getUnit(unitName: String!, graphSince: String!): UnitDetails

@@ -175,7 +175,7 @@ describe('trace queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-          getTraces(status: "ERROR") {
+          getTraces(statuses: ["ERROR"]) {
             traces {
               id
               externalId

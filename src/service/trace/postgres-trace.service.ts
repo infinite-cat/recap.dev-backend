@@ -1,5 +1,5 @@
 import { map, reduce } from 'lodash'
-import { Like, getConnection, IsNull, Not, MoreThanOrEqual } from 'typeorm'
+import { Like, getConnection, IsNull, Not, MoreThanOrEqual, In } from 'typeorm'
 import { DateTime } from 'luxon'
 
 import { RawTrace } from '../../entity/raw-trace'
@@ -44,13 +44,13 @@ export class PostgresTraceService extends AbstractTraceService {
     resourceAccessEvents: JSON.parse(storedTrace.resourceAccessEvents),
   })
 
-  getTraces = async (search: string = '', offset: number = 0, limit: number = 20, unitName?: string, unitErrorId?: number, status?: string) => {
+  getTraces = async (search: string = '', offset: number = 0, limit: number = 20, unitName?: string, unitErrorId?: number, statuses?: string[]) => {
     const connection = getConnection()
 
     const dynamicCriteria: any = {}
 
-    if (status) {
-      dynamicCriteria.status = status
+    if (statuses) {
+      dynamicCriteria.status = In(statuses)
     }
 
     if (unitName) {
