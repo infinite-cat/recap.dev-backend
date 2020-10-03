@@ -1,4 +1,4 @@
-import { map, reduce } from 'lodash'
+import { map, reduce, isEmpty } from 'lodash'
 import { Like, getConnection, IsNull, Not, MoreThanOrEqual, In } from 'typeorm'
 import { DateTime } from 'luxon'
 
@@ -49,7 +49,7 @@ export class PostgresTraceService extends AbstractTraceService {
 
     const dynamicCriteria: any = {}
 
-    if (statuses) {
+    if (statuses && !isEmpty(statuses)) {
       dynamicCriteria.status = In(statuses)
     }
 
