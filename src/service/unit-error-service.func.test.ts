@@ -6,6 +6,8 @@ import { StoredTrace, Unit, UnitError, UnitErrorStats } from '../entity/pg'
 import { startOf5MinuteInterval } from '../utils/timeseries.utils'
 import { unitErrorService } from './unit-error.service'
 import { traceService } from './trace'
+import { logger } from '../utils/logger'
+import { config } from '../config'
 
 describe('unit-error-service', () => {
   jest.setTimeout(60_000)
@@ -68,8 +70,15 @@ describe('unit-error-service', () => {
       .getRepository(StoredTrace)
       .save(traces)
 
-    const tracesToAnalyze = await traceService.getTracesWithoutError(100, 0, sinceDateTime)
-    await unitErrorService.analyzeTraces(tracesToAnalyze)
+    let tracesToAnalyze
+    let offset = 0
+    do {
+      tracesToAnalyze = await traceService.getTracesWithoutError(500, offset, sinceDateTime)
+      logger.debug(`There are ${tracesToAnalyze.length} traces to analyze`)
+      await unitErrorService.analyzeTraces(tracesToAnalyze)
+
+      offset += tracesToAnalyze.length
+    } while (tracesToAnalyze.length === config.enrichmentJobBatchSize)
 
     await unitErrorService.recalculateErrorStats(sinceDateTime.toMillis())
 

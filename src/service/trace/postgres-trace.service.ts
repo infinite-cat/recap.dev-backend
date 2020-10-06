@@ -146,7 +146,7 @@ export class PostgresTraceService extends AbstractTraceService {
     return connection
       .getRepository(StoredTrace)
       .find({
-        select: ['id', 'externalId', 'status', 'error'],
+        select: ['id', 'externalId', 'status', 'error', 'start', 'end', 'unitName'],
         where: {
           unitError: IsNull(),
           error: Not(IsNull()),

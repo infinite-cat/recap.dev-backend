@@ -13,6 +13,10 @@ class Config {
     return process.env.logLevel as LogLevelNames || 'info'
   }
 
+  get backgroundJobsEnabled() {
+    return (process.env.BACKGROUND_JOBS_ENABLED && Boolean(process.env.BACKGROUND_JOBS_ENABLED)) || true
+  }
+
   get enrichmentJobBatchSize() {
     return (process.env.ENRICHMENT_JOB_BATCH_SIZE && Number(process.env.ENRICHMENT_JOB_BATCH_SIZE)) || 1000
   }

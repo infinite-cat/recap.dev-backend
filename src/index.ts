@@ -46,7 +46,9 @@ const start = async () => {
     console.log(`UI app listening on port ${uiPort}`)
   })
 
-  startCronJobs()
+  if (config.backgroundJobsEnabled) {
+    startCronJobs()
+  }
 }
 
 start()
