@@ -30,7 +30,7 @@ describe('error analysis tests', () => {
     await delay(5_000)
 
     // TODO: split into two different tests
-    const tracesToAnalyze = await traceService.getTracesWithoutError(100, 0,startDateTime)
+    const tracesToAnalyze = await traceService.getTracesWithoutError(100, 0, startDateTime)
     await unitErrorService.analyzeTraces(tracesToAnalyze)
 
     await unitErrorService.recalculateErrorStats(startDateTime.toMillis())
