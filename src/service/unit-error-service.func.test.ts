@@ -68,7 +68,7 @@ describe('unit-error-service', () => {
       .getRepository(StoredTrace)
       .save(traces)
 
-    const tracesToAnalyze = await traceService.getTracesWithoutError(sinceDateTime)
+    const tracesToAnalyze = await traceService.getTracesWithoutError(100, 0, sinceDateTime)
     await unitErrorService.analyzeTraces(tracesToAnalyze)
 
     await unitErrorService.recalculateErrorStats(sinceDateTime.toMillis())
