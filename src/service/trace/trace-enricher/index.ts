@@ -1,4 +1,5 @@
 import { getConnection } from 'typeorm'
+import { chain } from 'lodash'
 
 import { StoredTrace, Settings } from '../../../entity/pg'
 import { awsLambdaTraceEnricher } from './aws-lambda-trace-enricher'
@@ -23,3 +24,10 @@ export const enrichTraces = async (traces: StoredTrace[]) => {
 
   return traces
 }
+
+export const hasActiveEnrichers = () => (
+  !!chain(traceEnrichers)
+    .filter((enricher) => enricher.isEnabled)
+    .head()
+    .value()
+)

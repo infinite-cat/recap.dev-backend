@@ -5,13 +5,14 @@ import path from 'path'
 import { analyticsApi } from './graphql'
 import { trackingApi } from './tracking'
 import { startCronJobs } from './cron'
-import { createDbConnection } from './db/pg/connection'
+import { createDbConnection } from './db/pg'
+import { config } from './config'
 
-const trackingPort = 8080 || process.env.TRACKING_PORT
+const trackingPort = config.trackingPort
 
 const httpServer = http.createServer(trackingApi)
 
-const uiPort = 8081 || process.env.UI_PORT
+const uiPort = config.uiPort
 
 analyticsApi.set('port', uiPort)
 

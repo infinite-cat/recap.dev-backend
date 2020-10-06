@@ -140,21 +140,30 @@ export class PostgresTraceService extends AbstractTraceService {
     }
   }
 
-  public async getTracesWithoutError(cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
-    const connection = getConnection()
-
-    return connection
-      .getRepository(StoredTrace)
-      .find({ unitError: IsNull(), error: Not(IsNull()), start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()) })
-  }
-
-  public async getNotEnrichedTraces(limit = 100, offset = 0, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
+  public async getTracesWithoutError(limit = 500, offset = 0, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
     const connection = getConnection()
 
     return connection
       .getRepository(StoredTrace)
       .find({
-        select: ['id', 'externalId', 'start', 'end', 'extraData', 'logs', 'enriched', 'status', 'error'], // TODO: only select what's needed
+        select: ['id', 'externalId', 'status', 'error'],
+        where: {
+          unitError: IsNull(),
+          error: Not(IsNull()),
+          start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()),
+        },
+        take: limit,
+        skip: offset,
+      })
+  }
+
+  public async getNotEnrichedTraces(limit = 500, offset = 0, cutoffDateTime: DateTime = DateTime.utc().minus({ minutes: 5 })): Promise<StoredTrace[]> {
+    const connection = getConnection()
+
+    return connection
+      .getRepository(StoredTrace)
+      .find({
+        select: ['id', 'externalId', 'start', 'end', 'extraData', 'logs', 'enriched', 'status', 'error'],
         where: {
           enriched: false,
           start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()),

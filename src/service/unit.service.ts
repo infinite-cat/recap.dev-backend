@@ -124,7 +124,7 @@ export class UnitService {
     const stats = await connection.query(`
         select units.name as "unitName",
                coalesce(count(traces), 0)                        as invocations,
-               sum(CASE WHEN status = 'ERROR' THEN 1 ELSE 0 END) AS errors,
+               sum(CASE WHEN status = 'ERROR' THEN 1 ELSE 0 END) as errors,
                avg(duration)                                     as "averageDuration",
                case
                    when count(traces) = 0 THEN NULL
