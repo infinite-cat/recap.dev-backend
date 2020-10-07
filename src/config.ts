@@ -14,15 +14,15 @@ class Config {
   }
 
   get backgroundJobsEnabled() {
-    return process.env.BACKGROUND_JOBS_ENABLED === 'true'
+    return !process.env.BACKGROUND_JOBS_ENABLED || process.env.BACKGROUND_JOBS_ENABLED === 'true'
   }
 
   get tracingApiEnabled() {
-    return process.env.TRACING_API_ENABLED === 'true'
+    return !process.env.TRACING_API_ENABLED || process.env.TRACING_API_ENABLED === 'true'
   }
 
   get uiEnabled() {
-    return process.env.UI_ENABLED === 'true'
+    return !process.env.UI_ENABLED || process.env.UI_ENABLED === 'true'
   }
 
   get enrichmentJobBatchSize() {
