@@ -16,8 +16,6 @@ export const analyzeNewTraces = new CronJob('0 * * * * *', async () => {
   isRunning = true
 
   try {
-    logger.debug('Enriching new traces')
-
     let tracesToAnalyze
     let offset = 0
     do {

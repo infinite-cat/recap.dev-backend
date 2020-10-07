@@ -8,8 +8,6 @@ import { startCronJobs } from './cron'
 import { createDbConnection } from './db/pg'
 import { config } from './config'
 
-const trackingPort = config.trackingPort
-
 const httpServer = http.createServer(trackingApi)
 
 const uiPort = config.uiPort
@@ -36,15 +34,22 @@ const start = async () => {
     console.log('Error while trying to connect to db: ', err)
     process.exit(1)
   }
+
   console.log('Successfully connected to db')
 
-  httpServer.listen(trackingPort, () => {
-    console.log(`Tracking handler listening on port ${trackingPort}`)
-  })
+  if (config.tracingApiEnabled) {
+    const trackingPort = config.trackingPort
 
-  graphqlServer.listen(uiPort, () => {
-    console.log(`UI app listening on port ${uiPort}`)
-  })
+    httpServer.listen(trackingPort, () => {
+      console.log(`Tracking handler listening on port ${trackingPort}`)
+    })
+  }
+
+  if (config.uiEnabled) {
+    graphqlServer.listen(uiPort, () => {
+      console.log(`UI app listening on port ${uiPort}`)
+    })
+  }
 
   if (config.backgroundJobsEnabled) {
     startCronJobs()

@@ -17,6 +17,14 @@ class Config {
     return (process.env.BACKGROUND_JOBS_ENABLED && Boolean(process.env.BACKGROUND_JOBS_ENABLED)) || true
   }
 
+  get tracingApiEnabled() {
+    return (process.env.TRACING_API_ENABLED && Boolean(process.env.TRACING_API_ENABLED)) || true
+  }
+
+  get uiEnabled() {
+    return (process.env.UI_ENABLED && Boolean(process.env.UI_ENABLED)) || true
+  }
+
   get enrichmentJobBatchSize() {
     return (process.env.ENRICHMENT_JOB_BATCH_SIZE && Number(process.env.ENRICHMENT_JOB_BATCH_SIZE)) || 1000
   }
