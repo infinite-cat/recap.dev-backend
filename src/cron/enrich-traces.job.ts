@@ -8,7 +8,7 @@ import { delay } from '../utils/test.utils'
 
 let isRunning = false
 
-export const enrichNewTraces = new CronJob('0 * * * * *', async () => {
+export const enrichNewTraces = new CronJob('30 * * * * *', async () => {
   if (isRunning) {
     logger.debug('Traces enrichment job is already running, skipping')
     return

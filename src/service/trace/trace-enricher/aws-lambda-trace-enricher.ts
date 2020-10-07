@@ -23,7 +23,7 @@ export class AwsLambdaTraceEnricher extends TraceEnricher {
     const logRequests = chain(traces)
       .map((trace) => ({
         requestId: trace.externalId,
-        lambdaName: trace.unit.name,
+        lambdaName: trace.unitName,
         logStreamName: trace.extraData.awsLogStreamName,
         startTime: Number(trace.start),
         endTime: Number(trace.end),
@@ -39,7 +39,7 @@ export class AwsLambdaTraceEnricher extends TraceEnricher {
 
       const logs = logsMap.get(JSON.stringify({
         requestId: trace.externalId,
-        lambdaName: trace.unit.name,
+        lambdaName: trace.unitName,
         logStreamName: trace.extraData.awsLogStreamName,
         startTime: Number(trace.start),
         endTime: Number(trace.end),

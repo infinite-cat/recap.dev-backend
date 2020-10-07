@@ -63,7 +63,7 @@
     "pg": "^8.3.2",
     "serialize-error": "^7.0.1",
     "serverless-express": "^2.0.11",
-    "typeorm": "^0.2.26"
+    "typeorm": "^0.2.28"
   },
   "jest": {
     "testMatch": [

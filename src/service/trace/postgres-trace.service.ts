@@ -163,10 +163,14 @@ export class PostgresTraceService extends AbstractTraceService {
     return connection
       .getRepository(StoredTrace)
       .find({
-        select: ['id', 'externalId', 'start', 'end', 'extraData', 'logs', 'enriched', 'status', 'error'],
+        select: ['id', 'externalId', 'start', 'end', 'extraData', 'logs', 'enriched', 'status', 'error', 'unitName'],
         where: {
           enriched: false,
           start: MoreThanOrEqual(cutoffDateTime.toMillis().toString()),
+        },
+        order: {
+          unitName: 'DESC',
+          start: 'DESC',
         },
         relations: ['unit'],
         take: limit,
