@@ -105,7 +105,7 @@ export class PostgresTraceService extends AbstractTraceService {
     return this.storedTraceToTrace(storedTrace!)
   }
 
-  async getTotalStats(since: number) {
+  async getTotalStats(from: number, to: number) {
     const connection = getConnection()
 
     const dataPoints = await connection.query(`
@@ -114,13 +114,15 @@ export class PostgresTraceService extends AbstractTraceService {
              sum(errors) AS errors,
              EXTRACT(EPOCH FROM date_trunc('hour', TO_TIMESTAMP("datetime" / 1000))) * 1000 as "dateTime"
       from unit_stats
-      where "datetime" >= $1
+      where 
+            EXTRACT(EPOCH FROM date_trunc('hour', TO_TIMESTAMP("datetime" / 1000))) * 1000 >= $1 
+        and EXTRACT(EPOCH FROM date_trunc('hour', TO_TIMESTAMP("datetime" / 1000))) * 1000 <= $2
       group by "dateTime"
       order by "dateTime" desc
-      `, [since])
+      `, [from, to])
 
-    const startDateTime = DateTime.fromMillis(since)
-    const endDateTime = DateTime.utc().startOf('hour')
+    const startDateTime = DateTime.fromMillis(from)
+    const endDateTime = DateTime.fromMillis(to)
 
     const fullDataPoints = fillTimeSeriesGaps(dataPoints, startDateTime, endDateTime, {
       invocations: 0,

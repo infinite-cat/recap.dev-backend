@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { getConnection } from 'typeorm'
 
 import { delay, fillTestData, saveTraces, trace } from '../../utils/test.utils'
-import { createDbConnection } from '../../db/pg/connection'
+import { createDbConnection } from '../../db/pg'
 import { unitService } from '../../service'
 
 describe('units queries tests', () => {
@@ -41,7 +41,7 @@ describe('units queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getUnits(since: "${startDateTime.toMillis()}", offset: 0) {
+            getUnits(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().toMillis()}", offset: 0) {
                 units {
                   unitName
                   invocations
@@ -79,7 +79,7 @@ describe('units queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getUnit(unitName: "recap.dev-backend-func-test-unit-units", graphSince: "${startDateTime.toMillis()}") {
+            getUnit(unitName: "recap.dev-backend-func-test-unit-units", from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}") {
                 unitName
                 errorRate
                 graphStats {
@@ -125,7 +125,7 @@ describe('units queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getTopInvokedUnits(since: "${startDateTime.toMillis()}") {
+            getTopInvokedUnits(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().toMillis()}") {
                 unitName
                 invocations
                 errors
@@ -171,7 +171,7 @@ describe('units queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getUnits(since: "${startDateTime.toMillis()}", search: "search", offset: 0) {
+            getUnits(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().toMillis()}", search: "search", offset: 0) {
                 units {
                   unitName
                   invocations

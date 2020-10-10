@@ -8,7 +8,7 @@ import { knex } from '../db/pg'
 import { escapeLiteral } from '../utils/db.utils'
 
 export class UnitService {
-  public async getUnits(since: number, search: string = '', offset: number = 0, orderBy: string = 'invocations', orderDirection: string = 'DESC') {
+  public async getUnits(from: number, to: number, search: string = '', offset: number = 0, orderBy: string = 'invocations', orderDirection: string = 'DESC') {
     const connection = getConnection()
 
     const searchTerms = search.split(' ')
@@ -23,7 +23,8 @@ export class UnitService {
     ).from('units')
       .leftJoin('unit_stats', (joinOnBuilder) => (
         joinOnBuilder.on('units.name', '=', 'unit_stats.unit_name'))
-        .andOn('unit_stats.datetime', '>=', knex.raw('?', [since])))
+        .andOn('unit_stats.datetime', '>=', knex.raw('?', [from]))
+        .andOn('unit_stats.datetime', '<=', knex.raw('?', [to])))
 
     for (const searchTerm of searchTerms) {
       queryBuilder.andWhere('units.name', 'like', `%${searchTerm}%`)
@@ -58,7 +59,7 @@ export class UnitService {
     await connection.query('insert into units(name, type) values ($1, $2) ON CONFLICT (name) do nothing;', [unitName, type])
   }
 
-  public async getTopInvokedUnits(since: number) {
+  public async getTopInvokedUnits(from: number, to: number) {
     const connection = getConnection()
 
     return connection.query(`
@@ -67,14 +68,14 @@ export class UnitService {
                sum(invocations) as invocations,
                sum(errors) as errors
         from units
-        join unit_stats on (units.name = unit_stats.unit_name) and datetime >= $1
+        join unit_stats on (units.name = unit_stats.unit_name) and datetime >= $1 and datetime <= $2
         group by "unitName", "estimatedCost"
         order by "invocations" DESC
         limit 20 
-    `, [since])
+    `, [from, to])
   }
 
-  public getUnit = async (unitName: string, graphSince: number) => {
+  public getUnit = async (unitName: string, from: number, to: number) => {
     const connection = getConnection()
 
     const unit = await connection.getRepository(Unit).findOne(unitName)
@@ -86,13 +87,13 @@ export class UnitService {
              case when sum(invocations) = 0 THEN NULL ELSE sum(average_duration * invocations) / sum(invocations) END as "averageDuration",
              floor(datetime / (3600 * 1000)) * 3600 * 1000 as "dateTime"
       from unit_stats
-      where unit_name = $1 and "datetime" >= $2
+      where unit_name = $1 and "datetime" >= $2 and "datetime" <= $3
       group by "dateTime"
       order by "dateTime" desc
-    `, [unitName, graphSince])
+    `, [unitName, from, to])
 
-    const startDateTime = DateTime.fromMillis(graphSince)
-    const endDateTime = DateTime.utc().startOf('hour')
+    const startDateTime = DateTime.fromMillis(from)
+    const endDateTime = DateTime.fromMillis(to)
 
     const fullGraphStats = fillTimeSeriesGaps(graphStats, startDateTime, endDateTime, {
       errors: 0,

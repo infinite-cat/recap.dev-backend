@@ -41,7 +41,7 @@ describe('trace queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getTotalStats(since: "${startDateTime.toMillis()}") {
+            getTotalStats(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}") {
                 invocations
                 errors
                 errorRate

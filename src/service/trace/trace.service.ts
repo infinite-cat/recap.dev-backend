@@ -19,7 +19,7 @@ export abstract class AbstractTraceService {
 
   abstract getTrace(id: string): Promise<Trace>
 
-  abstract getTotalStats(since: number): Promise<any>
+  abstract getTotalStats(from: number, to: number): Promise<any>
 
   abstract getTracesWithoutError(): Promise<StoredTrace[]>
 

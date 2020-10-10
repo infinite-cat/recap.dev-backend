@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { getConnection } from 'typeorm'
 
 import { fillTestData, delay } from '../../utils/test.utils'
-import { createDbConnection } from '../../db/pg/connection'
+import { createDbConnection } from '../../db/pg'
 import { unitService } from '../../service'
 
 describe('insights queries tests', () => {
@@ -38,7 +38,7 @@ describe('insights queries tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getInsights(since: "${startDateTime.toMillis()}") {
+            getInsights(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().toMillis()}") {
                 type
                 detailsLink
                 message

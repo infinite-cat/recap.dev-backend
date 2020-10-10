@@ -1,4 +1,4 @@
-import { MoreThanOrEqual, getConnection } from 'typeorm'
+import { getConnection, MoreThanOrEqual, LessThanOrEqual } from 'typeorm'
 import { map, isEmpty, chain, groupBy } from 'lodash'
 import { DateTime } from 'luxon'
 
@@ -6,7 +6,7 @@ import { UnitError, StoredTrace, Unit, UnitErrorStats } from '../entity/pg'
 import { fillTimeSeriesGaps, startOf5MinuteInterval } from '../utils/timeseries.utils'
 
 export class UnitErrorService {
-  public async getErrors(graphSince: number, offset: number = 0) {
+  public async getErrors(from: number, to: number, offset: number = 0) {
     const connection = getConnection()
 
     const errors = await connection
@@ -35,13 +35,15 @@ export class UnitErrorService {
              unit_error_id, 
              floor(unit_error_stats.datetime / (3600 * 1000)) * 3600 * 1000 as "dateTime"
       from unit_error_stats
-      where unit_error_id in (${errorIds.join(',')}) and "datetime" > $1
+      where unit_error_id in (${errorIds.join(',')}) 
+      and floor(unit_error_stats.datetime / (3600 * 1000)) * 3600 * 1000 >= $1 
+      and floor(unit_error_stats.datetime / (3600 * 1000)) * 3600 * 1000 <= $2
       group by unit_error_id, "dateTime"
       order by "dateTime" desc
-    `, [graphSince])
+    `, [from, to])
 
-    const startDateTime = DateTime.fromMillis(graphSince)
-    const endDateTime = DateTime.utc().startOf('hour')
+    const startDateTime = DateTime.fromMillis(from)
+    const endDateTime = DateTime.fromMillis(to)
 
     const graphStatsMap = chain(graphStats)
       .groupBy('unit_error_id')
@@ -57,14 +59,18 @@ export class UnitErrorService {
     }
   }
 
-  public async getNewErrors(since: number) {
+  public async getNewErrors(from: number, to: number) {
     const connection = getConnection()
 
     const errors = await connection
       .getRepository(UnitError)
       .createQueryBuilder('unitError')
       .where({
-        firstEventDateTime: MoreThanOrEqual(new Date(since)),
+        firstEventDateTime: MoreThanOrEqual(new Date(from)),
+      })
+      .andWhere({
+        // @ts-ignore
+        firstEventDateTime: LessThanOrEqual(new Date(to)),
       })
       .orderBy({
         first_event_datetime: 'DESC',
@@ -72,7 +78,7 @@ export class UnitErrorService {
       .limit(20)
       .getMany()
 
-    return errors.map((error) => ({
+    return errors.map((error: any) => ({
       ...error,
       rawError: JSON.stringify(error.rawError),
     }))
@@ -90,7 +96,7 @@ export class UnitErrorService {
     return this.storedErrorToGraphqlType(error)
   }
 
-  public getErrorStats = async (id: number, graphSince: number) => {
+  public getErrorStats = async (id: number, from: number, to: number) => {
     const connection = getConnection()
 
     const error = await connection.getRepository(UnitError).findOne(id)
@@ -120,13 +126,13 @@ export class UnitErrorService {
                  floor(datetime / (3600 * 1000)) * 3600 * 1000 as "dateTime"
           from unit_stats
           where unit_name = $2
-            and datetime >= $3
+            and datetime >= $3 and datetime <=$4
           group by "dateTime"
       ) us on ues."dateTime" = us."dateTime"
-    `, [id, error.unitName, graphSince])
+    `, [id, error.unitName, from, to])
 
-    const startDateTime = DateTime.fromMillis(graphSince)
-    const endDateTime = DateTime.utc().startOf('hour')
+    const startDateTime = DateTime.fromMillis(from)
+    const endDateTime = DateTime.fromMillis(to)
 
     const fullGraphStats = fillTimeSeriesGaps(graphStats, startDateTime, endDateTime, {
       errors: 0,

@@ -51,7 +51,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getErrors(graphSince: "${startDateTime.toMillis()}", offset: 0) {
+            getErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}", offset: 0) {
                 errors {
                   id
                   unitName
@@ -98,7 +98,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getErrors(graphSince: "${startDateTime.toMillis()}", offset: 0) {
+            getErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}", offset: 0) {
                 errors {
                   id
                   unitName
@@ -170,7 +170,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getErrors(graphSince: "${startDateTime.toMillis()}", offset: 0) {
+            getErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}", offset: 0) {
                 errors {
                   id
                   unitName
@@ -204,7 +204,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getErrorStats(since: "${startDateTime.toMillis()}", id: "${errorToFind.id}") {
+            getErrorStats(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}", id: "${errorToFind.id}") {
               invocations
               errors
               currentErrors
@@ -242,7 +242,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getNewErrors(since: "${startDateTime.toMillis()}") {
+            getNewErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}") {
               id
               unitName
               type
