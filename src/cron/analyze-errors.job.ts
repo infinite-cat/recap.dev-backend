@@ -19,7 +19,7 @@ export const analyzeNewTraces = new CronJob('0 * * * * *', async () => {
     let tracesToAnalyze
     let offset = 0
     do {
-      tracesToAnalyze = await traceService.getTracesWithoutError(500, offset)
+      tracesToAnalyze = await traceService.getTracesWithoutError(100, offset)
       logger.debug(`There are ${tracesToAnalyze.length} traces to analyze`)
       await unitErrorService.analyzeTraces(tracesToAnalyze)
 

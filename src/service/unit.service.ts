@@ -5,6 +5,7 @@ import { getConnection } from 'typeorm'
 import { fillTimeSeriesGaps, startOf5MinuteInterval } from '../utils/timeseries.utils'
 import { Unit, UnitStats } from '../entity/pg'
 import { knex } from '../db/pg'
+import { escapeLiteral } from '../utils/db.utils'
 
 export class UnitService {
   public async getUnits(since: number, search: string = '', offset: number = 0, orderBy: string = 'invocations', orderDirection: string = 'DESC') {
@@ -121,6 +122,29 @@ export class UnitService {
   public async recalculateUnitsStats(since: number) {
     const connection = getConnection()
 
+    const updatedUnits: any[] = await connection.query(`
+      select distinct(units.name) as "unitName"
+          from units
+          join traces on units.name = traces.unit_name
+          where start >= $1
+    `, [since])
+
+    const batches = chain(updatedUnits)
+      .map('unitName')
+      .chunk(20)
+      .value()
+
+
+    for (const batch of batches) {
+      await this.recalculateUnitsStatsForUnits(since, batch)
+    }
+  }
+
+  private async recalculateUnitsStatsForUnits(since: number, unitNames: string[]) {
+    const connection = getConnection()
+
+    const unitNamesParameter = unitNames.map(escapeLiteral).join(',')
+
     const stats = await connection.query(`
         select units.name as "unitName",
                coalesce(count(traces), 0)                        as invocations,
@@ -133,7 +157,7 @@ export class UnitService {
                floor("end" / (300 * 1000)) * 300 * 1000          as "dateTime"
         from units
         left join traces on units.name = traces.unit_name
-        where start >= $1
+        where start >= $1 and units.name in (${unitNamesParameter})
         group by "unitName", "dateTime"
     `, [since])
 

@@ -2,7 +2,6 @@ import { MoreThanOrEqual, getConnection } from 'typeorm'
 import { map, isEmpty, chain, groupBy } from 'lodash'
 import { DateTime } from 'luxon'
 
-
 import { UnitError, StoredTrace, Unit, UnitErrorStats } from '../entity/pg'
 import { fillTimeSeriesGaps, startOf5MinuteInterval } from '../utils/timeseries.utils'
 

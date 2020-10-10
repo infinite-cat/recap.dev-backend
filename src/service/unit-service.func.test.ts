@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { getConnection } from 'typeorm'
 
 import { unitService } from './unit.service'
-import { createDbConnection } from '../db/pg/connection'
+import { createDbConnection } from '../db/pg'
 import { StoredTrace, Unit, UnitStats } from '../entity/pg'
 import { startOf5MinuteInterval } from '../utils/timeseries.utils'
 
