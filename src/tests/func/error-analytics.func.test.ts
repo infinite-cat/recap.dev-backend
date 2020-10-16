@@ -242,7 +242,7 @@ describe('error analysis tests', () => {
       body: JSON.stringify({
         query: `
         {
-            getNewErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().startOf('hour').toMillis()}") {
+            getNewErrors(from: "${startDateTime.toMillis()}", to: "${DateTime.utc().toMillis()}") {
               id
               unitName
               type
