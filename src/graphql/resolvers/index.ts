@@ -28,8 +28,8 @@ export default {
     getUnit: (obj: any, args: any) => unitService.getUnit(args.unitName, Number(args.from), numberOr(args.to, DateTime.utc().startOf('hour').toMillis())),
     getInsights: (obj: any, args: any) => insightService.getInsights(Number(args.from), numberOr(args.to, DateTime.utc().startOf('hour').toMillis())),
     getTotalStats: (obj: any, args: any) => traceService.getTotalStats(Number(args.from), numberOr(args.to, DateTime.utc().startOf('hour').toMillis())),
-    getNewErrors: (obj: any, args: any) => unitErrorService.getNewErrors(Number(args.from), numberOr(args.to, DateTime.utc().startOf('hour').toMillis())),
-    getTopInvokedUnits: (obj: any, args: any) => unitService.getTopInvokedUnits(Number(args.from), numberOr(args.to, DateTime.utc().startOf('hour').toMillis())),
+    getNewErrors: (obj: any, args: any) => unitErrorService.getNewErrors(Number(args.from), numberOr(args.to, DateTime.utc().toMillis())),
+    getTopInvokedUnits: (obj: any, args: any) => unitService.getTopInvokedUnits(Number(args.from), numberOr(args.to, DateTime.utc().toMillis())),
     getSettings: () => settingsService.getGraphqlSettings(),
   },
   Mutation: {
