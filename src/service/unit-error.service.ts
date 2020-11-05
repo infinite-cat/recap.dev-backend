@@ -159,7 +159,7 @@ export class UnitErrorService {
       try {
         const { name, message } = trace.error!
 
-        let error = await connection.getRepository(UnitError).findOne({ unit: { name: trace.unitName }, type: name })
+        let error = await connection.getRepository(UnitError).findOne({ unit: { name: trace.unitName }, type: name, message })
 
         if (!error) {
           error = await connection
