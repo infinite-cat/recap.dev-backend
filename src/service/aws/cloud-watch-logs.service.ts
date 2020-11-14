@@ -148,7 +148,7 @@ export class CloudWatchLogsService {
 
       const logs = filter(response.events, (event) => {
         if (event.timestamp < request.startTime - 100
-          || event.timestamp > request.endTime + 100
+          || event.timestamp > request.endTime + 2000
           || !event.message.includes(request.requestId)) {
           return false
         }
@@ -195,7 +195,7 @@ export class CloudWatchLogsService {
       const response = await cloudwatch.filterLogEvents({
         logGroupName: `/aws/lambda/${lambdaName}`,
         logStreamNames,
-        startTime: startTime - 2000,
+        startTime: startTime - 100,
         endTime: endTime + 2000,
       }).promise()
 
