@@ -10,7 +10,7 @@ class Config {
   }
 
   get logLevel() {
-    return process.env.logLevel as LogLevelNames || 'info'
+    return process.env.logLevel as LogLevelNames || 'warn'
   }
 
   get backgroundJobsEnabled() {
@@ -31,6 +31,10 @@ class Config {
 
   get enrichmentJobStepDelay() {
     return (process.env.ENRICHMENT_JOB_STEP_DELAY && Number(process.env.ENRICHMENT_JOB_STEP_DELAY)) || 2000
+  }
+
+  get queueUrl() {
+    return process.env.QUEUE_URL || 'amqp://localhost'
   }
 }
 
