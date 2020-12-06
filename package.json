@@ -9,7 +9,7 @@
     "dev": "webpack --config webpack.config.js",
     "start": "nodemon dist/index.js",
     "tsc": "tsc --noEmit",
-    "test:func": "jest func --runInBand --detectOpenHandles",
+    "test:func": "jest func --runInBand --detectOpenHandles --forceExit",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
