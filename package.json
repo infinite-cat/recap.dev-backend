@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest --runInBand --detectOpenHandles",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
     "build:prod": "webpack -p --progress --colors --config webpack.config.prod.js --bail",
     "dev": "webpack --config webpack.config.js",
     "start": "nodemon dist/index.js",
