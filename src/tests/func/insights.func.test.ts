@@ -26,7 +26,7 @@ describe('insights queries tests', () => {
 
     await fillTestData('recap.dev-backend-func-test-unit-insights', startDateTime)
 
-    await delay(5000)
+    await delay(20000)
 
     // TODO: split into two different tests
     await unitService.recalculateUnitsStats(startDateTime.toMillis())

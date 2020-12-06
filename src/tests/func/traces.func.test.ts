@@ -29,7 +29,7 @@ describe('trace queries tests', () => {
 
     await fillTestData('recap.dev-backend-func-test-unit-traces', startDateTime)
 
-    await delay(5000)
+    await delay(20000)
 
     // TODO: split into two different tests
     await unitService.recalculateUnitsStats(startDateTime.toMillis())
@@ -100,7 +100,7 @@ describe('trace queries tests', () => {
 
     await saveTraces([searchTrace])
 
-    await delay(1_000)
+    await delay(20000)
 
     const response = await fetch('http://localhost:8081/graphql', {
       method: 'POST',
@@ -168,7 +168,7 @@ describe('trace queries tests', () => {
 
     await saveTraces([searchTrace])
 
-    await delay(1_000)
+    await delay(20000)
 
     const response = await fetch('http://localhost:8081/graphql', {
       method: 'POST',

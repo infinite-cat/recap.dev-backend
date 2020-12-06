@@ -29,7 +29,7 @@ describe('error analysis tests', () => {
 
     await fillTestData('recap.dev-backend-func-test-unit-errors', startDateTime)
 
-    await delay(5_000)
+    await delay(20000)
 
     // TODO: split into two different tests
     let tracesToAnalyze
