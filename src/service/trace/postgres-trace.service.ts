@@ -7,32 +7,12 @@ import { Trace } from '../../entity/trace'
 import { AbstractTraceService } from './trace.service'
 import { StoredTrace } from '../../entity/pg'
 import { fillTimeSeriesGaps } from '../../utils/timeseries.utils'
-import { unitService } from '../unit.service'
 import { ErrorReportData } from '../../entity/error-report-data'
+import { queueService } from '../queue.service'
 
 export class PostgresTraceService extends AbstractTraceService {
   addTrace = async (rawTrace: RawTrace) => {
-    const trace = this.processRawTrace(rawTrace)
-
-    const storedTrace = new StoredTrace({
-      ...trace,
-      id: undefined,
-      externalId: trace.id,
-      unit: {
-        name: trace.unitName,
-        type: rawTrace.unitType,
-      },
-      functionCallEvents: JSON.stringify(trace.functionCallEvents),
-      resourceAccessEvents: JSON.stringify(trace.resourceAccessEvents),
-      extraData: rawTrace.extraData,
-      error: rawTrace.error && JSON.parse(rawTrace.error),
-    })
-
-    const connection = getConnection()
-
-    await unitService.createUnit(storedTrace.unit.name, rawTrace.unitType)
-
-    await connection.getRepository(StoredTrace).save(storedTrace)
+    await queueService.enqueueNewTrace(rawTrace)
   }
 
   storedTraceToTrace = (storedTrace: StoredTrace): Trace => ({

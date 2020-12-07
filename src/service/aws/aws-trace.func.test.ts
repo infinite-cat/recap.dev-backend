@@ -73,7 +73,7 @@ describe('aws trace test', () => {
 
     expect(response.status).toBe(200)
 
-    await delay(5_000)
+    await delay(20000)
 
     // TODO: Refactor to split into two separate tests
 
@@ -146,7 +146,7 @@ describe('aws trace test', () => {
 
     expect(response.status).toBe(200)
 
-    await delay(5_000)
+    await delay(20000)
 
     // TODO: Refactor to split into two separate tests
 

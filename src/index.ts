@@ -7,6 +7,8 @@ import { trackingApi } from './tracking'
 import { startCronJobs } from './cron'
 import { createDbConnection } from './db/pg'
 import { config } from './config'
+import { queueService } from './service/queue.service'
+import { startConsumers } from './queue'
 
 const httpServer = http.createServer(trackingApi)
 
@@ -37,6 +39,17 @@ const start = async () => {
 
   console.log('Successfully connected to db')
 
+  if (config.tracingApiEnabled || config.backgroundJobsEnabled) {
+    try {
+      await queueService.connect()
+    } catch (err) {
+      console.log('Error while trying to connect to the queue: ', err)
+      process.exit(1)
+    }
+  }
+
+  console.log('Successfully connected to the queue')
+
   if (config.tracingApiEnabled) {
     const trackingPort = config.trackingPort
 
@@ -53,6 +66,7 @@ const start = async () => {
 
   if (config.backgroundJobsEnabled) {
     startCronJobs()
+    await startConsumers()
   }
 }
 

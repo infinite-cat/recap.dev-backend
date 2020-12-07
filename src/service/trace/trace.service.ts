@@ -15,8 +15,6 @@ export abstract class AbstractTraceService {
 
   abstract getTraces(search: string, offset: number): Promise<GetTracesResponse>
 
-  abstract saveTraces(traces: StoredTrace[]): Promise<StoredTrace[]>
-
   abstract getTrace(id: string): Promise<Trace>
 
   abstract getTotalStats(from: number, to: number): Promise<any>
@@ -27,7 +25,9 @@ export abstract class AbstractTraceService {
 
   abstract getErrorReport(since: number): Promise<ErrorReportData[]>
 
-  processRawTrace = (rawTrace: RawTrace) => {
+  abstract saveTraces(traces: StoredTrace[]): Promise<StoredTrace[]>
+
+  processRawTrace = (rawTrace: RawTrace): StoredTrace => {
     const functionCallEvents: FunctionCall[] = rawTrace.functionCallEvents
 
     const resourceAccessEvents: ResourceAccessEvent[] = chain(rawTrace.resourceAccessEvents)
@@ -53,7 +53,7 @@ export abstract class AbstractTraceService {
       .max()
       .value()
 
-    return {
+    const trace = {
       id: rawTrace.id,
       unitName: rawTrace.unitName,
       status: rawTrace.status,
@@ -67,5 +67,19 @@ export abstract class AbstractTraceService {
       functionCallEvents,
       resourceAccessEvents,
     }
+
+    return new StoredTrace({
+      ...trace,
+      id: undefined,
+      externalId: trace.id,
+      unit: {
+        name: trace.unitName,
+        type: rawTrace.unitType,
+      },
+      functionCallEvents: JSON.stringify(trace.functionCallEvents),
+      resourceAccessEvents: JSON.stringify(trace.resourceAccessEvents),
+      extraData: rawTrace.extraData,
+      error: rawTrace.error && JSON.parse(rawTrace.error),
+    })
   }
 }
