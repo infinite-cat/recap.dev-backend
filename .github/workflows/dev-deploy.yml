@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - enqueue-traces
 
 jobs:
   dev-deploy:
