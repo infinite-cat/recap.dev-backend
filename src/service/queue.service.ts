@@ -8,10 +8,6 @@ export class QueueService {
 
   public static readonly NEW_TRACES_QUEUE_NAME = 'new_traces'
 
-  public constructor() {
-    this.connect()
-  }
-
   public getRabbit() {
     return this.rabbit
   }
