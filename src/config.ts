@@ -1,4 +1,5 @@
 import { LogLevelNames } from 'console-log-level'
+import { get } from 'lodash'
 
 class Config {
   get trackingPort() {
@@ -19,6 +20,10 @@ class Config {
 
   get tracingApiEnabled() {
     return !process.env.TRACING_API_ENABLED || process.env.TRACING_API_ENABLED === 'true'
+  }
+
+  get traceProcessingBatchSize() {
+    return Number(get(process.env, 'TRACE_PROCESSING_BATCH_SIZE', 100))
   }
 
   get uiEnabled() {

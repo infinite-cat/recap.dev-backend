@@ -8,7 +8,7 @@ export abstract class QueueConsumer {
     const connection = await amqp.connect(config.queueUrl)
     this.channel = await connection.createChannel()
     await this.channel.assertQueue(queueName, { durable: true })
-    await this.channel.prefetch(1000)
+    await this.channel.prefetch(config.traceProcessingBatchSize)
     await this.channel.consume(queueName, (message) => this.onMessage(message!), { noAck: false })
   }
 
