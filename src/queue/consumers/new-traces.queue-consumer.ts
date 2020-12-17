@@ -5,11 +5,12 @@ import { QueueService } from '../../service/queue.service'
 import { QueueConsumer } from './queue-consumer'
 import { RawTrace } from '../../entity/raw-trace'
 import { traceService, unitService } from '../../service'
+import { config } from '../../config'
 
 export class NewTracesQueueConsumer extends QueueConsumer {
   protected bufferedMessages: ConsumeMessage[] = []
 
-  protected bufferedMessagesLimit = 1000
+  protected bufferedMessagesLimit = config.traceProcessingBatchSize
 
   protected timeout?: NodeJS.Timeout
 
