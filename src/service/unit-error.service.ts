@@ -198,10 +198,21 @@ export class UnitErrorService {
 
     const datas = await connection
       .query(`
-          select unit_errors.raw_error as error, unit_errors.unit_name, coalesce(sum(unit_error_stats.occurrences), 1) as occurrences, max(traces.id) as last_trace_id
+          select 
+            unit_errors.id, 
+            unit_errors.raw_error as error, 
+            unit_errors.unit_name, 
+            max(coalesce(unit_error_stats.occurrences, 1)) as occurrences, 
+            max(traces.id) as last_trace_id
           from unit_errors
           inner join traces on unit_errors.id = traces.unit_error_id
-          left join unit_error_stats on unit_errors.id = unit_error_stats.unit_error_id and datetime >= extract(epoch from (current_timestamp - interval '1 day')) * 1000
+          left join (
+              select unit_error_id, sum(occurrences) as occurrences 
+              from unit_error_stats 
+              where unit_error_id in (${idsParameter}) 
+                    and datetime >= extract(epoch from (current_timestamp - interval '1 day')) * 1000
+              group by unit_error_id
+          ) unit_error_stats on unit_error_stats.unit_error_id = unit_errors.id
           where unit_errors.id in (${idsParameter})
           group by unit_errors.id
       `)
