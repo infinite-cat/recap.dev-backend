@@ -20,4 +20,3 @@ export class addReportedErrorTable1608382119000 implements MigrationInterface {
     await queryRunner.query('DROP TABLE if exists reported_errors')
   }
 }
-

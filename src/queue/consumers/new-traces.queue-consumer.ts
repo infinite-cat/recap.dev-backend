@@ -48,7 +48,7 @@ export class NewTracesQueueConsumer extends QueueConsumer {
       const traces: RawTrace[] = map(messages, (message) => JSON.parse(message.content.toString('utf-8')))
 
       const units = chain(traces)
-        .map((trace) => ({name: trace.unitName, type: trace.unitType}))
+        .map((trace) => ({ name: trace.unitName, type: trace.unitType }))
         .uniqBy(JSON.stringify)
         .value()
 
