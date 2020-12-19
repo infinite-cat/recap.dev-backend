@@ -11,7 +11,7 @@ class Config {
   }
 
   get logLevel() {
-    return process.env.logLevel as LogLevelNames || 'warn'
+    return process.env.logLevel as LogLevelNames || 'info'
   }
 
   get backgroundJobsEnabled() {

@@ -4,10 +4,7 @@ import { getConnection } from 'typeorm'
 
 import { delay, fillTestData } from '../../utils/test.utils'
 import { createDbConnection } from '../../db/pg'
-import { traceService } from '../../service/trace'
 import { unitErrorService } from '../../service'
-import { logger } from '../../utils/logger'
-import { config } from '../../config'
 
 describe('error analysis tests', () => {
   jest.setTimeout(300_000)
@@ -30,17 +27,6 @@ describe('error analysis tests', () => {
     await fillTestData('recap.dev-backend-func-test-unit-errors', startDateTime)
 
     await delay(20000)
-
-    // TODO: split into two different tests
-    let tracesToAnalyze
-    let offset = 0
-    do {
-      tracesToAnalyze = await traceService.getTracesWithoutError(500, offset, startDateTime)
-      logger.debug(`There are ${tracesToAnalyze.length} traces to analyze`)
-      await unitErrorService.analyzeTraces(tracesToAnalyze)
-
-      offset += tracesToAnalyze.length
-    } while (tracesToAnalyze.length === config.enrichmentJobBatchSize)
 
     await unitErrorService.recalculateErrorStats(startDateTime.toMillis())
   })

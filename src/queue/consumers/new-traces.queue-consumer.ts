@@ -1,11 +1,12 @@
 import { ConsumeMessage } from 'amqplib'
-import { map, chain, maxBy } from 'lodash'
+import { map, chain, maxBy, partition } from 'lodash'
 
 import { QueueService } from '../../service/queue.service'
 import { QueueConsumer } from './queue-consumer'
 import { RawTrace } from '../../entity/raw-trace'
-import { traceService, unitService } from '../../service'
+import { traceService, unitErrorService, unitService } from '../../service'
 import { config } from '../../config'
+import { reportService } from '../../service/report.service'
 
 export class NewTracesQueueConsumer extends QueueConsumer {
   protected bufferedMessages: ConsumeMessage[] = []
@@ -43,22 +44,32 @@ export class NewTracesQueueConsumer extends QueueConsumer {
   }
 
   protected async processMessages(messages: ConsumeMessage[]) {
-    const traces: RawTrace[] = map(messages, (message) => JSON.parse(message.content.toString('utf-8')))
+    try {
+      const traces: RawTrace[] = map(messages, (message) => JSON.parse(message.content.toString('utf-8')))
 
-    const units = chain(traces)
-      .map((trace) => ({ name: trace.unitName, type: trace.unitType }))
-      .uniqBy(JSON.stringify)
-      .value()
+      const units = chain(traces)
+        .map((trace) => ({name: trace.unitName, type: trace.unitType}))
+        .uniqBy(JSON.stringify)
+        .value()
 
-    for (const unit of units) {
-      await unitService.createUnit(unit.name, unit.type)
+      for (const unit of units) {
+        await unitService.createUnit(unit.name, unit.type)
+      }
+
+      const processedTraces = map(traces, traceService.processRawTrace)
+
+      const [errorTraces, noErrorTraces] = partition(processedTraces, 'error')
+
+      await unitErrorService.analyzeTraces(errorTraces)
+
+      await traceService.saveTraces(noErrorTraces)
+
+      await reportService.reportError(errorTraces)
+
+      this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
+    } catch (e) {
+      console.error(e)
     }
-
-    const processedTraces = map(traces, traceService.processRawTrace)
-
-    await traceService.saveTraces(processedTraces)
-
-    this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
   }
 }
 

@@ -1,13 +1,10 @@
 import { DateTime } from 'luxon'
 import { getConnection } from 'typeorm'
 
-import { createDbConnection } from '../db/pg/connection'
+import { createDbConnection } from '../db/pg'
 import { StoredTrace, Unit, UnitError, UnitErrorStats } from '../entity/pg'
 import { startOf5MinuteInterval } from '../utils/timeseries.utils'
 import { unitErrorService } from './unit-error.service'
-import { traceService } from './trace'
-import { logger } from '../utils/logger'
-import { config } from '../config'
 
 describe('unit-error-service', () => {
   jest.setTimeout(60_000)
@@ -36,20 +33,10 @@ describe('unit-error-service', () => {
       .getRepository(Unit)
       .save(unit)
 
-    const traces: Partial<StoredTrace>[] = [{
+    const okTraces: Partial<StoredTrace>[] = [{
       externalId: 'unit-service-test-unit-1',
       unitName: 'unit-error-service-test-unit',
       status: 'OK',
-      functionCallEvents: '',
-      resourceAccessEvents: '',
-      start: sinceDateTime.plus({ minutes: 4, seconds: 20 }).toMillis().toString(),
-      end: sinceDateTime.plus({ minutes: 4, seconds: 30 }).toMillis().toString(),
-      duration: 20000,
-    }, {
-      externalId: 'unit-service-test-unit-2',
-      unitName: 'unit-error-service-test-unit',
-      status: 'ERROR',
-      error: { name: 'LambdaTimeoutError', message: 'Task timed out' },
       functionCallEvents: '',
       resourceAccessEvents: '',
       start: sinceDateTime.plus({ minutes: 4, seconds: 20 }).toMillis().toString(),
@@ -66,19 +53,23 @@ describe('unit-error-service', () => {
       duration: 20000,
     }]
 
+    const errorTraces: Partial<StoredTrace>[] = [{
+      externalId: 'unit-service-test-unit-2',
+      unitName: 'unit-error-service-test-unit',
+      status: 'ERROR',
+      error: { name: 'LambdaTimeoutError', message: 'Task timed out' },
+      functionCallEvents: '',
+      resourceAccessEvents: '',
+      start: sinceDateTime.plus({ minutes: 4, seconds: 20 }).toMillis().toString(),
+      end: sinceDateTime.plus({ minutes: 4, seconds: 30 }).toMillis().toString(),
+      duration: 20000,
+    }]
+
     await getConnection()
       .getRepository(StoredTrace)
-      .save(traces)
+      .save(okTraces)
 
-    let tracesToAnalyze
-    let offset = 0
-    do {
-      tracesToAnalyze = await traceService.getTracesWithoutError(500, offset, sinceDateTime)
-      logger.debug(`There are ${tracesToAnalyze.length} traces to analyze`)
-      await unitErrorService.analyzeTraces(tracesToAnalyze)
-
-      offset += tracesToAnalyze.length
-    } while (tracesToAnalyze.length === config.enrichmentJobBatchSize)
+    await unitErrorService.analyzeTraces(errorTraces as StoredTrace[])
 
     await unitErrorService.recalculateErrorStats(sinceDateTime.toMillis())
 

@@ -9,7 +9,7 @@ export const createDbConnection = async () => {
     name: 'default',
     type: 'postgres',
     host: process.env.postgresHost || 'localhost',
-    port: Number(process.env.postgresPort) || 5432,
+    port: Number(process.env.postgresPort) || 8001,
     username: process.env.postgresUsername || 'postgres',
     password: process.env.postgresPassword || 'password',
     database: process.env.postgresDatabase || 'postgres',

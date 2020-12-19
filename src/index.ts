@@ -9,6 +9,7 @@ import { createDbConnection } from './db/pg'
 import { config } from './config'
 import { queueService } from './service/queue.service'
 import { startConsumers } from './queue'
+import { logger } from './utils/logger'
 
 const httpServer = http.createServer(trackingApi)
 
@@ -29,38 +30,39 @@ analyticsApi.get('*', (req, res) => {
 const graphqlServer = http.createServer(analyticsApi)
 
 const start = async () => {
-  console.log('Connecting to db')
+  logger.info('Connecting to db')
+
   try {
     await createDbConnection()
   } catch (err) {
-    console.log('Error while trying to connect to db: ', err)
+    logger.error('Error while trying to connect to db: ', err)
     process.exit(1)
   }
 
-  console.log('Successfully connected to db')
+  logger.info('Successfully connected to db')
 
   if (config.tracingApiEnabled || config.backgroundJobsEnabled) {
     try {
       await queueService.connect()
     } catch (err) {
-      console.log('Error while trying to connect to the queue: ', err)
+      logger.error('Error while trying to connect to the queue: ', err)
       process.exit(1)
     }
   }
 
-  console.log('Successfully connected to the queue')
+  logger.info('Successfully connected to the queue')
 
   if (config.tracingApiEnabled) {
     const trackingPort = config.trackingPort
 
     httpServer.listen(trackingPort, () => {
-      console.log(`Tracking handler listening on port ${trackingPort}`)
+      logger.info(`Tracking handler listening on port ${trackingPort}`)
     })
   }
 
   if (config.uiEnabled) {
     graphqlServer.listen(uiPort, () => {
-      console.log(`UI app listening on port ${uiPort}`)
+      logger.info(`UI app listening on port ${uiPort}`)
     })
   }
 

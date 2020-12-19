@@ -3,7 +3,6 @@ import { chain } from 'lodash'
 import { RawTrace } from '../../entity/raw-trace'
 import { FunctionCall, ResourceAccessEvent, Trace } from '../../entity/trace'
 import { StoredTrace } from '../../entity/pg'
-import { ErrorReportData } from '../../entity/error-report-data'
 
 export interface GetTracesResponse {
   traces: Trace[]
@@ -19,11 +18,7 @@ export abstract class AbstractTraceService {
 
   abstract getTotalStats(from: number, to: number): Promise<any>
 
-  abstract getTracesWithoutError(): Promise<StoredTrace[]>
-
   abstract getNotEnrichedTraces(): Promise<StoredTrace[]>
-
-  abstract getErrorReport(since: number): Promise<ErrorReportData[]>
 
   abstract saveTraces(traces: StoredTrace[]): Promise<StoredTrace[]>
 

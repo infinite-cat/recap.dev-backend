@@ -8,6 +8,14 @@ export class QueueService {
 
   public static readonly NEW_TRACES_QUEUE_NAME = 'new_traces'
 
+  protected readonly logLevelMapping = {
+    debug: 'debug',
+    warn: 'warn',
+    info: 'debug',
+    error: 'error',
+    trace: 'trace',
+  }
+
   public getRabbit() {
     return this.rabbit
   }
@@ -18,7 +26,7 @@ export class QueueService {
       console.error(err)
       setTimeout(() => this.rabbit.reconnect(), 100)
     })
-    this.rabbit.on('log', (component, level, ...args) => logger[level](`RabbitMQ: [${level}] ${component}`, ...args))
+    this.rabbit.on('log', (component, level, ...args) => logger[this.logLevelMapping[level]](`RabbitMQ: [${level}] ${component}`, ...args))
 
     await this.rabbit.createQueue(QueueService.NEW_TRACES_QUEUE_NAME, { durable: true })
   }

@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 
 import { settingsService } from '../service'
 import { StoredTrace, UnitError } from '../entity/pg'
+import { logger } from '../utils/logger'
 
 export const cleanupData = new CronJob('0 0 0 * * *', async () => {
   const settings = await settingsService.getSettings()
@@ -12,7 +13,7 @@ export const cleanupData = new CronJob('0 0 0 * * *', async () => {
     return
   }
 
-  console.log(`Cleaning up data that is older than ${settings.cleanupAfterDays} days`)
+  logger.info(`Cleaning up data that is older than ${settings.cleanupAfterDays} days`)
 
   const connection = getConnection()
 

@@ -4,6 +4,9 @@ import { DateTime } from 'luxon'
 
 import { UnitError, StoredTrace, Unit, UnitErrorStats } from '../entity/pg'
 import { fillTimeSeriesGaps, startOf5MinuteInterval } from '../utils/timeseries.utils'
+import { logger } from '../utils/logger'
+import { ErrorReportData } from '../entity/error-report-data'
+import { escapeLiteral } from '../utils/db.utils'
 
 export class UnitErrorService {
   public async getErrors(from: number, to: number, offset: number = 0) {
@@ -183,9 +186,32 @@ export class UnitErrorService {
         trace.unitError = error
         await connection.getRepository(StoredTrace).save(trace)
       } catch (e) {
-        console.log('Error analyzing trace error ', trace, e)
+        logger.error('Error analyzing trace error ', trace, e)
       }
     }
+  }
+
+  public async getErrorReports(ids: number[]): Promise<ErrorReportData[]> {
+    const connection = getConnection()
+
+    const idsParameter = ids.map((id) => escapeLiteral(id.toString())).join(',')
+
+    const datas = await connection
+      .query(`
+          select unit_errors.raw_error as error, unit_errors.unit_name, coalesce(sum(unit_error_stats.occurrences), 1) as occurrences, max(traces.id) as last_trace_id
+          from unit_errors
+          inner join traces on unit_errors.id = traces.unit_error_id
+          left join unit_error_stats on unit_errors.id = unit_error_stats.unit_error_id and datetime >= extract(epoch from (current_timestamp - interval '1 day')) * 1000
+          where unit_errors.id in (${idsParameter})
+          group by unit_errors.id
+      `)
+
+    return map(datas, (data) => ({
+      lastTraceId: data.last_trace_id,
+      unitName: data.unit_name,
+      error: data.error,
+      last24HoursOccurrences: data.occurrences,
+    }))
   }
 
   public async recalculateErrorStats(since: number) {

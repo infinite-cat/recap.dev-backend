@@ -3,6 +3,7 @@ import { getConnection } from 'typeorm'
 import { AwsLambdaPrice } from '../entity/pg'
 import { awsPricingService } from '../service/aws/aws-pricing.service'
 import { settingsService } from '../service'
+import { logger } from '../utils/logger'
 
 
 export const updateAwsLambdaPriceRates = new CronJob('0 0 0 * * *', async () => {
@@ -12,7 +13,7 @@ export const updateAwsLambdaPriceRates = new CronJob('0 0 0 * * *', async () => 
     return
   }
 
-  console.log('Updating AWS Lambda price rates')
+  logger.info('Updating AWS Lambda price rates')
 
   try {
     const connection = await getConnection()
@@ -21,8 +22,8 @@ export const updateAwsLambdaPriceRates = new CronJob('0 0 0 * * *', async () => 
 
     await connection.getRepository(AwsLambdaPrice).save(pricingData)
 
-    console.log('Successfully updated AWS Lambda price rates')
+    logger.info('Successfully updated AWS Lambda price rates')
   } catch (err) {
-    console.warn('Failed to update lambda price rates ', err)
+    logger.error('Failed to update lambda price rates ', err)
   }
 })

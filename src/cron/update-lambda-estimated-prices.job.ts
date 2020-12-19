@@ -4,6 +4,7 @@ import { groupBy, reduce, find } from 'lodash'
 
 import { AwsLambdaPrice, Unit } from '../entity/pg'
 import { settingsService } from '../service'
+import { logger } from '../utils/logger'
 
 
 export const updateAwsLambdasEstimatedCosts = new CronJob('0 0 * * * *', async () => {
@@ -13,7 +14,7 @@ export const updateAwsLambdasEstimatedCosts = new CronJob('0 0 * * * *', async (
     return
   }
 
-  console.log('Updating AWS Lambdas estimated costs')
+  logger.info('Updating AWS Lambdas estimated costs')
 
   try {
     const connection = await getConnection()
@@ -56,8 +57,8 @@ export const updateAwsLambdasEstimatedCosts = new CronJob('0 0 * * * *', async (
       }
     }
 
-    console.log('Successfully updated AWS Lambdas estimated costs')
+    logger.info('Successfully updated AWS Lambdas estimated costs')
   } catch (err) {
-    console.warn('Failed to update lambda prices ', err)
+    logger.error('Failed to update lambda prices ', err)
   }
 })
