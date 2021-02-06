@@ -41,6 +41,10 @@ class Config {
   get queueUrl() {
     return process.env.QUEUE_URL || 'amqp://localhost'
   }
+
+  get postgresQueryTimeout() {
+    return (process.env.POSTGRES_QUERY_TIMEOUT && Number(process.env.POSTGRES_QUERY_TIMEOUT)) || undefined
+  }
 }
 
 export const config = new Config()
