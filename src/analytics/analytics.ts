@@ -35,8 +35,13 @@ export const getAnalytics = (req: Request, res: Response) => {
   
   ga('create', 'G-NQZBNJ8SJF', {
      'storage': 'none',
-     'clientId': clientIDHashed
+     'clientId': clientIDHashed,
+     'referrer': 'https://recap.dev',
+     'hostname': 'https://recap.dev',
+     'alwaysSendReferrer': true,
   });
+  ga('set', 'location', 'https://recap.dev');
+  ga('set', 'referrer', 'https://recap.dev');
   ga('set', 'anonymizeIp', true);
   ga('send', 'pageview');
   `)
