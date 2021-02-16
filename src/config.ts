@@ -45,6 +45,10 @@ class Config {
   get postgresQueryTimeout() {
     return (process.env.POSTGRES_QUERY_TIMEOUT && Number(process.env.POSTGRES_QUERY_TIMEOUT)) || undefined
   }
+
+  get usageAnalyticsDisabled() {
+    return !process.env.DISABLE_USAGE_ANALYTICS || process.env.DISABLE_USAGE_ANALYTICS === 'true'
+  }
 }
 
 export const config = new Config()
