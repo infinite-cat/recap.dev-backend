@@ -10,6 +10,7 @@ import { config } from './config'
 import { queueService } from './service/queue.service'
 import { startConsumers } from './queue'
 import { logger } from './utils/logger'
+import { getAnalytics } from './analytics/analytics'
 
 const httpServer = http.createServer(trackingApi)
 
@@ -20,6 +21,8 @@ analyticsApi.set('port', uiPort)
 analyticsApi.get('/', (req, res) => {
   res.sendFile(path.resolve('public/index.html'))
 })
+
+analyticsApi.get('/analytics.js', getAnalytics)
 
 analyticsApi.use(express.static(path.resolve('public')))
 
