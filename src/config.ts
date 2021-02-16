@@ -47,7 +47,7 @@ class Config {
   }
 
   get usageAnalyticsDisabled() {
-    return !process.env.DISABLE_USAGE_ANALYTICS || process.env.DISABLE_USAGE_ANALYTICS === 'true'
+    return process.env.DISABLE_USAGE_ANALYTICS && process.env.DISABLE_USAGE_ANALYTICS === 'true'
   }
 }
 
