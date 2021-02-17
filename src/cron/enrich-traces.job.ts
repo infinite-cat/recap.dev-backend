@@ -1,10 +1,12 @@
 import { CronJob } from 'cron'
+import { filter } from 'lodash'
 
 import { traceService } from '../service'
 import { enrichTraces, hasActiveEnrichers, updateEnrichersSettings } from '../service/trace/trace-enricher'
 import { logger } from '../utils/logger'
 import { config } from '../config'
 import { delay } from '../utils/test.utils'
+import { reportService } from '../service/report.service'
 
 let isRunning = false
 
@@ -34,6 +36,10 @@ export const enrichNewTraces = new CronJob('30 * * * * *', async () => {
       const enrichedTraces = await enrichTraces(tracesToEnrich)
 
       await traceService.saveTraces(enrichedTraces)
+
+      const errorTraces = filter(enrichedTraces, { status: 'ERROR' })
+
+      await reportService.reportError(errorTraces)
 
       offset += tracesToEnrich.length
 
