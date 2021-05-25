@@ -4,7 +4,7 @@ import { routes } from './routes'
 
 const app = express()
 
-app.use(json({ limit: '10mb' }))
+app.use(json({ limit: '1mb' }))
 
 routes(app)
 

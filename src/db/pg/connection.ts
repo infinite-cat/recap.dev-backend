@@ -14,12 +14,11 @@ export const createDbConnection = async () => {
     username: process.env.postgresUsername || 'postgres',
     password: process.env.postgresPassword || 'password',
     database: process.env.postgresDatabase || 'postgres',
-    logging: false,
+    logging: Boolean(process.env.dbQueryLogging),
     // @ts-ignore
     entities: [...map(entities)],
     // @ts-ignore
     migrations: [...map(migrations)] as string[],
-    maxQueryExecutionTime: 2000,
     migrationsRun: true,
     extra: {
       max: 20,
