@@ -186,7 +186,7 @@ export class UnitErrorService {
         trace.unitError = error
         await connection.getRepository(StoredTrace).save(trace)
       } catch (e) {
-        logger.error('Error analyzing trace error ', trace, e)
+        logger.error('Error analyzing trace ', trace, e)
       }
     }
   }

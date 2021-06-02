@@ -56,7 +56,7 @@ export class NewTracesQueueConsumer extends QueueConsumer {
         await unitService.createUnit(unit.name, unit.type)
       }
 
-      const processedTraces = map(traces, traceService.processRawTrace)
+      const processedTraces = chain(traces).map(traceService.processRawTrace).compact().value()
 
       const [errorTraces, noErrorTraces] = partition(processedTraces, 'error')
 

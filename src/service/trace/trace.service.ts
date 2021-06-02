@@ -22,7 +22,12 @@ export abstract class AbstractTraceService {
 
   abstract saveTraces(traces: StoredTrace[]): Promise<StoredTrace[]>
 
-  processRawTrace = (rawTrace: RawTrace): StoredTrace => {
+  isValidTrace = (trace: StoredTrace) => (
+    // TODO: Rework to use a validation library and validate more fields
+    !(!trace.end || !trace.start)
+  )
+
+  processRawTrace = (rawTrace: RawTrace): StoredTrace | null => {
     const functionCallEvents: FunctionCall[] = rawTrace.functionCallEvents
 
     const resourceAccessEvents: ResourceAccessEvent[] = chain(rawTrace.resourceAccessEvents)
@@ -63,7 +68,7 @@ export abstract class AbstractTraceService {
       resourceAccessEvents,
     }
 
-    return new StoredTrace({
+    const storedTrace = new StoredTrace({
       ...trace,
       id: undefined,
       externalId: trace.id,
@@ -76,5 +81,11 @@ export abstract class AbstractTraceService {
       extraData: rawTrace.extraData,
       error: rawTrace.error && JSON.parse(rawTrace.error),
     })
+
+    if (this.isValidTrace(storedTrace)) {
+      return storedTrace
+    }
+
+    return null
   }
 }
