@@ -65,10 +65,10 @@ export class NewTracesQueueConsumer extends QueueConsumer {
       await traceService.saveTraces(noErrorTraces)
 
       await reportService.reportError(errorTraces)
-
-      this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
     } catch (e) {
       console.error(e)
+    } finally {
+      this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
     }
   }
 }
