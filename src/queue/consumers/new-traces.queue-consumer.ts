@@ -44,6 +44,8 @@ export class NewTracesQueueConsumer extends QueueConsumer {
   }
 
   protected async processMessages(messages: ConsumeMessage[]) {
+    this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
+
     try {
       const traces: RawTrace[] = map(messages, (message) => JSON.parse(message.content.toString('utf-8')))
 
@@ -67,8 +69,6 @@ export class NewTracesQueueConsumer extends QueueConsumer {
       await reportService.reportError(errorTraces)
     } catch (e) {
       console.error(e)
-    } finally {
-      this.channel.ack(maxBy(messages, 'fields.deliveryTag')!, true)
     }
   }
 }
