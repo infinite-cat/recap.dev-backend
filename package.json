@@ -60,7 +60,7 @@
     "graphql-type-json": "^0.3.2",
     "knex": "^0.21.5",
     "lodash": "^4.17.20",
-    "luxon": "^1.25.0",
+    "luxon": "^2.5.2",
     "node-cache": "^5.1.2",
     "pg": "^8.3.2",
     "rabbit-queue": "^5.0.1",
